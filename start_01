@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+#Script that starts a flask web application
+
+# Create the web_dynamic folder if it doesn't exist
+mkdir -p web_dynamic/static
+
+# copying the static folder
+cp -r web_flask/static/* web_dynamic/static/
+
+# check if 100-hbnb.html exists, otherwise use 8-hbnb.html
+if [ -f web_flask/templates/100-hbnb.html ]; then
+	html_file="100-hbnb.html"
+else
+	html_file="8-hbnb.html"
+fi
+
+# copying html file
+cp web_flask/templates/$html_file web_dynamic/0-hbnb.html
+
+# Copying __init__.py
+cp web_flask/__init__.py web_dynamic/__init__.py
+
+# updating 0-hbnb.py
+sed 's/\/100-hbnb\//\/0-hbnb\//' web_flask/100-hbnb.py > web_dynamic/0-hbnb.py
+
+# Adding cache_id to render_template in 0-hbnb.py
+sed -i "/render_template/s/)/, cache_id=str(uuid.uuid4()))/" web_dynamic/0-hbnb.py
+
+#add cache_id as query string to each <link> tag URL in 0-hbnb.html
+sed -i "s/\.\.\/static\/\([^\"']*\)/\.\.\/static\/\1?{{ cache_id }}/g" web_dynamic/0-hbnb.html
